@@ -19,6 +19,7 @@ const allowedPasswords = (process.env.PROTECTION_PASSWORDS || "")
   .split(",")
   .map(p => p.trim())
   .filter(Boolean);
+const autoReconnect = process.env.ENABLE_RECONNECT || "false";
 
 const PORT = process.env.PORT || 3500
 export const ADMIN = "system-messages-normal-user-unclaimable"
@@ -75,7 +76,10 @@ export const io = new Server(expressServer, {
 io.on('connection', socket => {
     console.log(`User ${socket.id} connected`);
 
-    // Upon connection - only to user 
+    
+    socket.emit('config', { autoReconnect: autoReconnect === "true" });
+
+    // Welcome and Connected messgaes
     socket.emit('message', buildMsg(ADMIN, "Connected to websocket successfully!"));
     socket.emit('message', buildMsg('INFO', "Enter a username and chatroom to chat with other people.<br>Use /!help to see commands"));
 
@@ -92,7 +96,7 @@ io.on('connection', socket => {
             return;
         }
 
-        // leave previous room 
+        // leave previs room
         const prevRoom = getUser(socket.id)?.room;
 
         if (prevRoom) {
@@ -111,7 +115,7 @@ io.on('connection', socket => {
         // join room 
         socket.join(user.room);
 
-        // To user who joined 
+        // you have joined 
         socket.emit('message', buildMsg(ADMIN, `You have joined the ${user.room} chat room`));
 
         // To everyone else 

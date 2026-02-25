@@ -40,3 +40,4 @@ in /server
 | ENABLE_IMAGES        | boolean | true   | Enable image sharing    |
 | ENABLE_COMMANDS       | boolean | true   | Enable "/!" commands    |
 | NODE_ENV             | string | -   | if "production" all cross-origin requests are denied 
+| ENABLE_RECONNECT     | boolean | false  | Automatically reconnect to the last room on connection/disconnect

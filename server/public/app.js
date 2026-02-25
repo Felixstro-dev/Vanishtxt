@@ -22,24 +22,35 @@ function sendMessage(e) {
 
 let currentRoom = null;
 
-function enterRoom(e) {
-    if (!currentRoom === null) {
-        return;
-    } else {
-        e.preventDefault();
-        if (nameInput.value && chatRoom.value) {
-            socket.emit('enterRoom', { name: nameInput.value, room: chatRoom.value }, ( room ) => {
-                chatDisplay.innerHTML = '';
+let autoReconnectEnabled = false;
 
-                currentRoom = room
-                msgInput.disabled = false;
-                document.getElementById("choose_image").disabled = false;
-                document.getElementById("join").disabled = true;
-                setTimeout(() => {
-                    document.getElementById("join").disabled = false;
-                }, 4000);
-            });
-        }
+function joinRoom(name, room, isAutoReconnect = false) {
+    // Save to localStorage 
+    if (autoReconnectEnabled) {
+        localStorage.setItem('lastRoom', room);
+        localStorage.setItem('lastUsername', name);
+    }
+
+    socket.emit('enterRoom', { name: name, room: room });
+    chatDisplay.innerHTML = '';
+    currentRoom = room;
+
+    msgInput.disabled = false;
+    document.getElementById("choose_image").disabled = false;
+    document.getElementById("join").disabled = true;
+    setTimeout(() => {
+        document.getElementById("join").disabled = false;
+    }, 4000);
+}
+
+function enterRoom(e) {
+    if (currentRoom !== null) {
+        return;
+    }
+    
+    e.preventDefault();
+    if (nameInput.value && chatRoom.value) {
+        joinRoom(nameInput.value, chatRoom.value);
     }
 
 }
@@ -54,6 +65,21 @@ msgInput.addEventListener('keypress', () => {
     socket.emit('activity', nameInput.value)
 });
 
+// Receive config 
+socket.on("config", (config) => {
+    autoReconnectEnabled = config.autoReconnect;
+
+
+    if (autoReconnectEnabled && !currentRoom) {
+        const lastRoom = localStorage.getItem('lastRoom');
+        const lastUsername = localStorage.getItem('lastUsername');
+
+        if (lastRoom && lastUsername) {
+            joinRoom(lastUsername, lastRoom, true);
+        }
+    }
+})
+
 socket.on("connect", () => {
     activityText.textContent = "";
     activityLoader.hidden = true;
@@ -61,8 +87,15 @@ socket.on("connect", () => {
     statusDisplay.textContent = "Connected to websocket server!"
     msgInput.disabled = false;
     document.getElementById("choose_image").disabled = false;
-})
 
+
+    if (autoReconnectEnabled && currentRoom) {
+        const lastUsername = localStorage.getItem('lastUsername') || nameInput.value;
+        if (lastUsername) {
+            joinRoom(lastUsername, currentRoom, true);
+        }
+    }
+})
 socket.on("disconnect", () => {
     activityText.textContent = "Not connected";
     activityLoader.hidden = true;
