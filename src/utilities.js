@@ -1,4 +1,4 @@
-import { UsersState } from "./index.js"
+import { UsersState, prohibitedNames, allowedCharacters } from "./index.js"
 
 export function activateUser(id, name, room) {
     const user = { id, name, room }

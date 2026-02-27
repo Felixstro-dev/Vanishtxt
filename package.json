@@ -1,6 +1,6 @@
 {
   "name": "vanishtxt",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Free, open-source and anonymous chat platform.",
   "main": "./src/index.js",
   "type": "module",

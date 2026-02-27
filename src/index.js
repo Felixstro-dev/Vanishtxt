@@ -1,6 +1,7 @@
 import express from 'express'
 import { Server } from "socket.io"
 import path from 'path'
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url'
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -11,6 +12,8 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
+const pkg = require("../package.json");
 
 const protectionEnabled = process.env.ENABLE_PROTECTION || "false";
 export const customFrontendEnabled = process.env.ENABLE_CUSTOM_FRONTEND || "false";
@@ -28,12 +31,12 @@ export const ADMIN = "system-messages-normal-user-unclaimable"
 
 const app = express();
 
-const prohibitedNames = [
+export const prohibitedNames = [
     'SYSTEM', 'ADMIN', 'MODERATOR', 'SERVER', 'OWNER', 'DEV', 'DEVELOPER', 'COMMANDS', 'COMMAND',
     'BOT', 'MANAGER', 'TEAM', 'STAFF', 'ADMINISTRATOR', 'SERVERBOT', 'INFO', "system-messages-normal-user-unclaimable", ADMIN
 ];
 
-const allowedCharacters = [
+export const allowedCharacters = [
     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R',
     'S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0','_','-'
 ];
@@ -61,11 +64,19 @@ if (customFrontendEnabled == "true") {
     app.use(express.static(path.join(__dirname, "frontend")))
 }
 const expressServer = app.listen(PORT, () => {
-    const message = `
+    const message1 = `
+    \x1b[38;5;93m╭──────────────────────────────────────────────────────╮
+    \x1b[38;5;93m│ \x1b[38;5;7mVanishTXT v${pkg.version}\x1b[0m                                     \x1b[38;5;93m│
+    \x1b[38;5;93m╰──────────────────────────────────────────────────────╯
+
+    ${customLog("Starting", true, true)}`;
+    console.log(message1);
+
+    const message2 = `
     \x1b[38;5;7m╭──────────────────────────────────────────────────────╮
     \x1b[38;5;7m│ \x1b[0m Listening on \x1b[38;5;93mhttp://0.0.0.0:${PORT}\x1b[0m                    \x1b[38;5;7m│
     \x1b[38;5;7m╰──────────────────────────────────────────────────────╯`;
-    console.log(message)
+    console.log(message2)
 })
 
 // state 
@@ -104,7 +115,7 @@ io.on('connection', socket => {
             return;
         }
 
-        // leave previs room
+        // leave previous room
         const prevRoom = getUser(socket.id)?.room;
 
         if (prevRoom) {
@@ -154,7 +165,6 @@ io.on('connection', socket => {
         customLog(`A user disconnected...`, false, false, "    ")
     });
 
-    // Listening for a message event 
     socket.on('message', ({ name, text }) => {
         const room = getUser(socket.id)?.room;
         if (room) {
@@ -248,11 +258,3 @@ export function buildMsg(name, text) {
 /* function getAllActiveRooms() {
     return Array.from(new Set(UsersState.users.map(user => user.room)))
 } */
-
-const message = `
-    \x1b[38;5;93m╭──────────────────────────────────────────────────────╮
-    \x1b[38;5;93m│ \x1b[38;5;7mVanishTXT v1.2.2\x1b[0m                                     \x1b[38;5;93m│
-    \x1b[38;5;93m╰──────────────────────────────────────────────────────╯
-
-    ${customLog("Starting", true, true)}`;
-console.log(message);
