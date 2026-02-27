@@ -127,13 +127,27 @@ socket.on("message", (data) => {
 
     if (!isAdminMessage) {
         const headerClass = isOwnMessage ? 'post__header--user' : 'post__header--reply';
-        li.innerHTML = `
-            <div style="background-color: ${nameColor}; background: ${nameColor}" class="post__header ${headerClass}">
-                <span  class="post__header--name">${name}</span>
-                <span class="post__header--time">${time}</span>
-            </div>
-            <div class="post__text">${text}</div>
-        `;
+        const header = document.createElement('div');
+        header.className = `post__header ${headerClass}`;
+        header.style.backgroundColor = nameColor;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'post__header--name';
+        nameSpan.textContent = name;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'post__header--time';
+        timeSpan.textContent = time;
+
+        header.appendChild(nameSpan);
+        header.appendChild(timeSpan);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'post__text';
+        linkifyText(textDiv, text);
+
+        li.appendChild(header);
+        li.appendChild(textDiv);
     } else {
         li.classList.add('post__system')
         li.innerHTML = `<div class="post__text--system">${text}</div>`;
@@ -143,6 +157,34 @@ socket.on("message", (data) => {
     chatDisplay.scrollTop = chatDisplay.scrollHeight;
     activityText.textContent = "";
 });
+
+function linkifyText(container, rawText) {
+    const urlRegex = /(https?:\/\/[^\s]+)(?=\s|$)/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = urlRegex.exec(rawText)) !== null) {
+        const matchStart = match.index;
+        const matchEnd = match.index + match[0].length;
+
+        if (matchStart > lastIndex) {
+            container.appendChild(document.createTextNode(rawText.slice(lastIndex, matchStart)));
+        }
+
+        const link = document.createElement('a');
+        link.href = match[0];
+        link.textContent = match[0];
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        container.appendChild(link);
+
+        lastIndex = matchEnd;
+    }
+
+    if (lastIndex < rawText.length) {
+        container.appendChild(document.createTextNode(rawText.slice(lastIndex)));
+    }
+}
 
 
 socket.on("chat_image", (data) => {
