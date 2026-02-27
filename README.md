@@ -1,18 +1,21 @@
 # Vanishtxt
+Formerly roomyfy
 
 [![License](https://img.shields.io/badge/license-MIT-blueviolet?style=for-the-badge)](https://opensource.org/licenses/MIT)  [![Node.js](https://img.shields.io/badge/Node.js->=18-brightgreen?style=for-the-badge)](https://nodejs.org/)  [![NPM](https://img.shields.io/badge/NPM->=9-orange?style=for-the-badge)](https://www.npmjs.com/)  
 
 Websocket-based, anonymous and open source chatroom site.
 
-**Official EU instance**: https://roomyfy-eu.chjk.xyz/ 
+**Official EU instance**: https://vanishtxt-eu.chjk.xyz/ 
 
-**Official US instance**: https://roomyfy-us.chjk.xyz/
+**Official US instance**: https://vanishtxt-us.chjk.xyz/
 
-Instance status: https://status.chjk.xyz/status/roomyfy
+Instance status: https://status.chjk.xyz/status/vanishtxt
 
 >  **IMPORTANT**
 >
 >  Please update your instance's install or run script if your instance is on version 1.2.0 or later due to a change in the file structure.
+>
+
 ## Setting up your own instance:
 
 ### Requirements: 
@@ -43,7 +46,6 @@ npm install #just to be safe
 (Not tested on windows)
 
 ## Environment Variables
-in /server
 
 | Variable             | Type    | Default  | Description                                |
 |---------------------|--------|---------|--------------------------------------------|
