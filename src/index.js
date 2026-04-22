@@ -96,30 +96,37 @@ export const io = new Server(expressServer, {
     }
 })
 
+app.get("/version", async (req, res) => {
+    res.json({ version: pkg.version });
+    res.end();
+});
+
 if (customFrontendType == "url" && customFrontendPath) {
     app.get("/*", async (req, res) => {
-    const filePath = req.params[0];
+        const filePath = req.params[0];
 
-    const response = await fetch(
-        `${customFrontendPath}/${filePath}`
-    );
+        const response = await fetch(
+            `${customFrontendPath}/${filePath}`
+        );
 
-    res.status(response.status);
+        res.status(response.status);
 
-    if (filePath.toLowerCase().endsWith(".html")) {
-        res.setHeader("Content-Type", "text/html");
-    } else {
-        const contentType = response.headers.get("content-type");
-        if (contentType) {
-        res.setHeader("Content-Type", contentType);
+        if (filePath.toLowerCase().endsWith(".html")) {
+            res.setHeader("Content-Type", "text/html");
+        } else if (filePath.toLowerCase().includes("socket.io")) {
+            return
+        } else {
+            const contentType = response.headers.get("content-type");
+            if (contentType) {
+            res.setHeader("Content-Type", contentType);
+            }
         }
-    }
 
-    if (response.body) {
-        Readable.fromWeb(response.body).pipe(res);
-    } else {
-        res.end();
-    }
+        if (response.body) {
+            Readable.fromWeb(response.body).pipe(res);
+        } else {
+            res.end();
+        }
     });
 }
 

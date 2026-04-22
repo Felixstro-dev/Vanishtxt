@@ -91,7 +91,7 @@
     <button onclick="login()">Login</button>
     <p class="error" id="error"></p>
     
-    <p style="font-size: 12px;">running on <a id="vanishtxt" href="https://github.com/felixstro-dev/vanishtxt">vanishtxt</a> v1.2.4<br>and vanishtxt-frontend v2</p>
+    <p style="font-size: 12px;">running on <a id="vanishtxt" href="https://github.com/felixstro-dev/vanishtxt">vanishtxt</a> <span id="version">---</span><br>and vanishtxt-frontend v2</p>
   </div>
 
   <div class="console" style="align-items: center; text-align: center;" id="consolecontainer">
@@ -107,10 +107,31 @@ const loginbox = document.getElementById('loginbox')
 const consolet1 = document.getElementById('console1')
 const consolet2 = document.getElementById('console2')
 const consolec = document.getElementById('consolecontainer')
+const versionel = document.getElementById('version')
 const text1 = "Welcome...";
 const text2 = "Please enter your pin to log in...";
 let index1 = 0;
 let index2 = 0;
+
+async function updateVersion() {
+  try {
+    const response = await fetch(`${window.location.origin}/version`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    if (response.includes("NOT_FOUND") || response.includes("404")) {
+      console.log("")
+    }
+
+    const data = await response.json();
+    versionel.textContent = data.version;
+
+  } catch (err) {
+    console.error("Failed to fetch version: " + err);
+  }
+}
+updateVersion()
 
 function login() {
   if (!pin.value) {
